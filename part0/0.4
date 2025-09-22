@@ -1,0 +1,18 @@
+sequenceDiagram
+    participant C as Client
+    participant B as Browser
+    participant S as Server
+
+C->>B: Fill in form input
+C->>B: Click form button
+B->>S: POST form data
+S-->>B: 302 Redirect (new request required)
+B->>S: GET /notes
+S->>B: HTML document
+B->>S: GET /main.css
+S->>B: css file
+B->>S: GET /main.js 
+S->>B: js file
+B->>S: GET /data.json
+S->>B: [{ "content": " ", "date": "2025-1-1" }, ... ]
+B->>B: Execute callback to render
