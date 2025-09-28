@@ -1,5 +1,51 @@
-const Header = (props) => {
-  return <h1>{props.course}</h1>
+import { useState } from 'react'
+
+const History = (props) => {
+  if (props.allClicks.length === 0) {
+    return (
+      <div>
+        the app is used by pressing the buttons
+      </div>
+    )
+  }
+  return (
+    <div>
+      button press history: {props.allClicks.join(' ')}
+    </div>
+  )
+}
+
+const Display = props => <div>{props.value}</div>
+
+const Button = ({ handleClick, text }) => (
+  <button onClick={handleClick}>
+    {text}
+  </button>
+)
+
+const App = () => {
+ const [value, setValue] = useState(10)
+
+  const setToValue = newValue => {
+    console.log('value now', newValue)
+    setValue(newValue)
+  }
+  
+  return (
+    <div>
+      <Display value={value} />
+      <Button handleClick={() => setToValue(1000)} text="thousand" />
+      <Button handleClick={() => setToValue(0)} text="reset" />
+      <Button handleClick={() => setToValue(value + 1)} text="increment" />
+    </div>
+  )
+}
+
+export default App
+
+
+/* const Header = ({course}) => {
+  return <h1>{course}</h1>
 }
 
 const Part = ({name, exercises}) => {
@@ -7,6 +53,7 @@ const Part = ({name, exercises}) => {
 }
 
 const Content = ({parts}) => {
+
   return (
     <div>
       <Part name={parts[0].name} exercises={parts[0].exercises} />
@@ -16,25 +63,37 @@ const Content = ({parts}) => {
   )
 }
 
-const Total = (props) => {
-  return <p>Number of exercises {props.exercises1 + props.exercises2 + props.exercises3}</p>
+const Total = ({parts}) => {
+  return <p>Number of exercises {parts[0].exercises + parts[1].exercises + parts[2].exercises}</p>
 }
 
 const App = () => {
-  const course = 'Half Stack application development'
-  const exercises = [
-    { name: 'Fundamentals of React', exercises: 10 },
-    { name: 'Using props to pass data', exercises: 7 },
-    { name: 'State of a component', exercises: 14 },
-  ]
-
+  const course = {
+    name: 'Half Stack application development',
+    parts: [
+      {
+        name: 'Fundamentals of React',
+        exercises: 10
+      },
+      {
+        name: 'Using props to pass data',
+        exercises: 7
+      },
+      {
+        name: 'State of a component',
+        exercises: 14
+      }
+    ]
+  }
+  console.log(course.name);
+  
   return (
     <div>
-      <Header course={course} />
-      <Content parts={exercises}/>
-      <Total exercises1={exercises[0].exercises} exercises2={exercises[1].exercises} exercises3={exercises[2].exercises} />
+      <Header course={course.name} />
+      <Content parts={course.parts}/>
+      <Total parts={course.parts} />
     </div>
   )
 }
 
-export default App
+export default App */
