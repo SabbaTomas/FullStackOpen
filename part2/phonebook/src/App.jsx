@@ -101,6 +101,7 @@ const App = () => {
           setPersons(persons.filter(person => person.id !== id))
         })
     }
+    
   }
 
   return (
