@@ -3,8 +3,8 @@ const app = express()
 const cors = require('cors')
 const mongoose = require('mongoose')
 const config = require('./utils/config')
-const logger = require('./utils/logger')
 const blogSchema = require('./models/blog').blogSchema
+const middleware = require('./utils/middleware')
 
 const Blog = blogSchema
 
@@ -13,6 +13,11 @@ mongoose.connect(mongoUrl)
 
 app.use(cors())
 app.use(express.json())
+app.use(middleware.requestLogger)
+
+
+app.use(middleware.unknownEndpoint)
+app.use(middleware.errorHandler)
 
 app.get('/api/blogs', (request, response) => {
   Blog
