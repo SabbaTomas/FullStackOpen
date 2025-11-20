@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "cross-env NODE_ENV=production node index.js",
+    "dev": "cross-env NODE_ENV=development nodemon index.js",
+    "test": "cross-env NODE_ENV=test node --test"
   },
   "author": "tom",
   "license": "ISC",
@@ -14,5 +16,9 @@
     "express": "^5.1.0",
     "mongoose": "^8.19.3",
     "nodemon": "^3.1.11"
+  },
+  "devDependencies": {
+    "cross-env": "^10.1.0",
+    "supertest": "^7.1.4"
   }
 }
