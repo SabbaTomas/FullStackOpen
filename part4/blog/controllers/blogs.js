@@ -1,5 +1,6 @@
 const blogRouter = require('express').Router()
 const Blog = require('../models/blog')
+const User = require('../models/user')
 
 blogRouter.get('/', async (request, response, next) => {
   try {
@@ -12,9 +13,25 @@ blogRouter.get('/', async (request, response, next) => {
 
 blogRouter.post('/', async (request, response, next) => {
   try {
-    const blog = new Blog(request.body)
+    const body = request.body
+
+    // Obtener el primer usuario de la BD como creador
+    const user = await User.findOne({})
+    if (!user) {
+      return response.status(400).json({ error: 'no users in database' })
+    }
+
+    const blog = new Blog({
+      title: body.title,
+      author: body.author,
+      url: body.url,
+      likes: body.likes || 0,
+      user: user._id
+    })
+
     const result = await blog.save()
-    response.status(201).json(result)
+    const populatedBlog = await result.populate('user', { username: 1, name: 1 })
+    response.status(201).json(populatedBlog)
   } catch (error) {
     next(error)
   }
