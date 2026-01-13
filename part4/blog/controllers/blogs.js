@@ -41,9 +41,22 @@ blogRouter.post('/', middleware.userExtractor, async (request, response, next) =
   }
 })
 
-blogRouter.delete('/:id', async (request, response, next) => {
+blogRouter.delete('/:id', middleware.userExtractor, async (request, response, next) => {
   try {
-    await Blog.findByIdAndRemove(request.params.id)
+    const blog = await Blog.findById(request.params.id)
+    if (!blog) {
+      return response.status(404).json({ error: 'blog not found' })
+    }
+
+    if (blog.user.toString() !== request.user._id.toString()) {
+      return response.status(403).json({ error: 'only the creator can delete this blog' })
+    }
+
+    await Blog.findByIdAndDelete(request.params.id)
+
+    request.user.blogs = request.user.blogs.filter(id => id.toString() !== request.params.id)
+    await request.user.save()
+
     response.status(204).end()
   } catch (error) {
     next(error)
@@ -52,12 +65,27 @@ blogRouter.delete('/:id', async (request, response, next) => {
 
 blogRouter.put('/:id', async (request, response, next) => {
   try {
-    const updated = await Blog.findByIdAndUpdate(
+    const body = request.body
+
+   const updated = {
+      title: body.title,
+      author: body.author,
+      url: body.url,
+      likes: body.likes,
+      user: body.user 
+    }
+
+    const blog = await Blog.findByIdAndUpdate(
       request.params.id,
-      request.body,
+      updated,
       { new: true, runValidators: true, context: 'query' }
-    )
-    response.json(updated)
+    ).populate('user', { username: 1, name: 1 })
+
+    if (blog) {
+      response.json(blog.toJSON())
+    } else {
+      response.status(404).end()
+    }
   } catch (error) {
     next(error)
   }
