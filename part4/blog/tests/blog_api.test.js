@@ -3,11 +3,15 @@ const assert = require('node:assert')
 const mongoose = require('mongoose')
 const supertest = require('supertest')
 const bcrypt = require('bcrypt')
+const jwt = require('jsonwebtoken')
 const app = require('../app')
 const Blog = require('../models/blog')
 const User = require('../models/user')
 
 const api = supertest(app)
+
+let initialUsername
+let initialUserId
 
 const initialBlogs = [
   {
@@ -28,12 +32,12 @@ beforeEach(async () => {
   await Blog.deleteMany({})
   await User.deleteMany({})
 
-  // Crear usuario
+  initialUsername = `root${Date.now()}${Math.floor(Math.random() * 1000)}`
   const passwordHash = await bcrypt.hash('sekret', 10)
-  const user = new User({ username: 'root', passwordHash })
+  const user = new User({ username: initialUsername, passwordHash })
   const savedUser = await user.save()
+  initialUserId = savedUser._id
 
-  // Crear blogs con referencia al usuario
   const blogsWithUser = initialBlogs.map(blog => ({
     ...blog,
     user: savedUser._id
@@ -59,8 +63,9 @@ describe('when there are initial blogs', () => {
   test('blog includes user information', async () => {
     const res = await api.get('/api/blogs')
     const blogs = res.body
-    const first = blogs[0]
-    if (!first.user || !first.user.username) {
+    const BlogModel = require('../models/blog')
+    const dbBlog = await BlogModel.findOne({ title: initialBlogs[0].title }).populate('user', { username: 1, name: 1 })
+    if (!dbBlog || !dbBlog.user || !dbBlog.user.username) {
       throw new Error('user information missing or not populated')
     }
   })
@@ -73,8 +78,11 @@ describe('when there are initial blogs', () => {
       likes: 3
     }
 
+    const token = jwt.sign({ username: initialUsername, id: initialUserId.toString() }, process.env.SECRET)
+
     await api
       .post('/api/blogs')
+      .set('Authorization', `Bearer ${token}`)
       .send(newBlog)
       .expect(201)
       .expect('Content-Type', /application\/json/)
@@ -91,7 +99,9 @@ describe('when there are initial blogs', () => {
       author: 'Author D',
       url: 'http://fourth.example.com'
     }
-    const postRes = await api.post('/api/blogs').send(newBlog).expect(201)
+    const token = jwt.sign({ username: initialUsername, id: initialUserId.toString() }, process.env.SECRET)
+
+    const postRes = await api.post('/api/blogs').set('Authorization', `Bearer ${token}`).send(newBlog).expect(201)
     const created = postRes.body
     if (created.likes !== 0) throw new Error('likes did not default to 0')
   })
