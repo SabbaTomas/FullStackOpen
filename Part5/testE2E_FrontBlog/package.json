@@ -1,0 +1,16 @@
+{
+  "name": "teste2e_frontblog",
+  "version": "1.0.0",
+  "description": "Bootcamp Playwright",
+  "main": "index.js",
+  "scripts": {
+    "test": "playwright test",
+    "test:report": "playwright show-report"
+  },
+  "author": "Tomas",
+  "license": "ISC",
+  "devDependencies": {
+    "@playwright/test": "^1.57.0",
+    "@types/node": "^25.0.9"
+  }
+}
