@@ -43,6 +43,8 @@ const CountryDetail = ({ country }) => {
       ) : (
         <p>Loading weather data...</p>
       )}
-    </div>)}    
+    </div>
+  )
+}
 
-    export default CountryDetail
+export default CountryDetail
